@@ -16,12 +16,12 @@
 
 __author__ = 'Chris Rundle (crundle@blackberry.com)'
 __version__ = '1.3.0'
-__last_modification__ = '2019.06.12'
+__last_modification__ = '2019.06.25'
 # 1.2.6 = Parse CIDR ranges in a file list
 # 1.2.7 = Default to non-verbose mode (only report aggressive), with -v to show verbose output
 # 1.2.8 = Cosmetic changes to output
 # 1.2.9 = Added hash_r warning, Dead Peer Detection and insane mode (all 23760 transforms)
-# 1.3.0 = Git edition. Added elepsed time and some cosmetic changes to output.
+# 1.3.0 = Git edition. Added estimated and elapsed time and some cosmetic changes to output.
 
 # Import modules #
 
@@ -235,8 +235,9 @@ def check4AM(translist, IP): # Check for Aggressive Mode
                         # Patched versions respond to all requests with the DPD payload, but unpatched versions only return  
                         # a DPD payload when the group name is correct, providing a method for group ID enumeration.
                         print "[***] Dead Peer Detection was not reported - if the endpoint is an older CISCO device, it may be unpatched.\n"
-                    print"[*] Note that unless the group ID is correct, the responder hash (hash_r) returned\n[\] from CISCO devices is an anti-enumeration feature, and will not be crackable.\n"
-                    
+                    print"[*] Note that for CISCO devices, unless the group ID is correct, the responder hash (hash_r)\n", \
+                         "[\] returned from the endpoint is an anti-enumeration feature, and will not be crackable.\n"
+		
                     hashflag=False
                 if "hash_r" in line:
                     print "[+] RESPONDER HASH: ",
@@ -480,9 +481,23 @@ def main():
             print "[+] Using all possible transforms (-T4: 23760 transforms + All Auths + DH 1-18)\n[***] NOTE: Using insane mode runs the risk of triggering an IDS."
 
         print # end of headers
+	
+        # Approximate timings per target (mins)
+        if quick:
+            TLT = [0,0.033,0.330,0.583,11.750]
+        else:
+            TLT = [0,1.333,1.666,2.0,13.5]
 
+        # Estimate time to complete:
+        TGN = int(len(targets))
+        TTC = int((TGN * TLT[LEN]) + .5)
+        if TTC >=2:
+            TTT = str(TTC) + " minutes"
+        else:
+            TTT = str(int((TGN * TLT[LEN] * 60) + .5)) + " seconds"
+            
         translist=gentrans(LEN)# generate a list of all applicable transforms
-        print "[+] Using %r transforms on %r target(s).\n" % (int(len(translist)), int(len(targets)))
+        print "[+] Using %r transforms on %r target(s).\n[+] Estimated time to complete: %s (approx).\n" % (int(len(translist)), TGN, TTT)
 
         if (not verbose):
             print "~"*40
