@@ -49,9 +49,11 @@ sudo python pyike.py 10.100.140.35 -T1
 [+] 10.100.140.35:500/udp is open - checking for Aggressive Mode....
 
 [+] 10.100.140.35       Aggressive Mode Handshake returned
-  (Validation: ike-scan -M -A --id=fakegroup --trans=1,2,1,2  10.100.140.35 -P)
+  (Validation: ike-scan -M -A --id=fakegroup --trans=1,2,1,2  10.100.140.35 -P)  
+  
 [+] 10.100.140.35       Implementation guess: Cisco VPN Concentrator or PIX 7.0
-    (Validation:ike-scan -M --trans=1,2,1,2  --showbackoff 10.100.140.35)
+    (Validation:ike-scan -M --trans=1,2,1,2  --showbackoff 10.100.140.35)  
+    
 [+] RESPONDER HASH:  
     ef783d4e396cfc346355cbfe34e4453a1229516afeef5d6a0e2d396d5401c8bbfd94e4a0ef54
     4867a3425c233e8215b0fa254e78fa91f00cb02703377d1efc3883ad1c8af19532a3fb478818
