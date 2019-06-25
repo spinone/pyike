@@ -246,7 +246,7 @@ def check4AM(translist, IP): # Check for Aggressive Mode
 
 def checkImplemetation(trans, IP): # Guess VPN software provider
     imp="ike-scan -M " + trans  + nat + " " + " --showbackoff "+ IP
-    sys.stdout.write("[+] Running implementation check (this can be slow...):    \r")
+    sys.stdout.write("[>] Running implementation check (this can be slow...):    \r")
     sys.stdout.flush()
     cmd = subprocess.Popen(imp, shell=True, stdout=subprocess.PIPE)
     for line in cmd.stdout:
@@ -358,6 +358,7 @@ def main():
     nat=""
     LEN=2
     verbose=False
+    tnow = time.time()
 
     targets=[]
     targs=sys.argv[1:]
@@ -493,7 +494,10 @@ def main():
         print "\n" + "="*40 + "\n\n" + "[!] No valid targets provided."
 
     print "\n" + "="*75 + "\n"
-    print "[+] %s server(s) found supporting Aggressive Mode.\n" % AMC
+
+    tfin = time.time()
+    tdelta = int(tfin - tnow)
+    print "[+] %s server(s) found supporting Aggressive Mode, in %s seconds.\n" % (AMC, tdelta)
 
     tf = (time.strftime("%H:%M:%S"))
     print "=== pyIKE finished at " + tf + " " + "="*(75-(23+len(tf))) +"\n\n"
