@@ -71,7 +71,8 @@ a6163fcc3bb2d03e2d17880a430:ca63f2a6a888d960:1a2738d64c632c6f:
 [*] Note that for CISCO devices, unless the group ID is correct, the responder hash (hash_r)
 [\] returned from the endpoint is an anti-enumeration feature, and will not be crackable.
 
-[-] Other transform options allowing Aggressive Mode handshakes on this host (from the T1 list of 45 transforms):
+[-] Other transform options allowing Aggressive Mode handshakes on this host 
+    (from the T1 list of 45 transforms):
     (--trans=5,2,1,2)
     (--trans=7/128,2,1,2)                   
     (--trans=7/192,2,1,2)                   
