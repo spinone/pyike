@@ -246,7 +246,7 @@ def check4AM(translist, IP): # Check for Aggressive Mode
 
 def checkImplemetation(trans, IP): # Guess VPN software provider
     imp="ike-scan -M " + trans  + nat + " " + " --showbackoff "+ IP
-    sys.stdout.write("[+] Running implementation check (slow):    \r")
+    sys.stdout.write("[+] Running implementation check (this can be slow...):    \r")
     sys.stdout.flush()
     cmd = subprocess.Popen(imp, shell=True, stdout=subprocess.PIPE)
     for line in cmd.stdout:
