@@ -216,7 +216,7 @@ def check4AM(translist, IP): # Check for Aggressive Mode
                 if AM==False: # AM Flag not yet set
                     AM=True
                     AMC=AMC+1
-                    print "[+] " + line + "    (Validation: " + strike +")"
+                    print "[+] " + line + "    (Validation: " + strike +")\n"
                     if quick: # -q option
                         print "[-] Not running implementation checks (-q)\n"
                         #return AM # uncomment this line to break out of the if statement, don't test other transforms and don't harvest the PSK hash
