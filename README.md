@@ -7,7 +7,7 @@ An ike-scan wrapper script in Python to check VPN endpoint support for Aggressiv
 &nbsp;&nbsp;&nbsp;&nbsp;-T2 (default): 180 transforms + PSK, RSA, Hybrid & XAUTH + DH 1, 2, 5, 14 & 16  <br>
 &nbsp;&nbsp;&nbsp;&nbsp;-T3 (high): 750 transforms + PSK, RSA, Hybrid, ECDSA & XAUTH + DH 1, 2, 5, 14 & 16  <br>
 &nbsp;&nbsp;&nbsp;&nbsp;-T4 (insane): 23760 transforms + All Auths + DH 1-18  <br>
-<li>Allows a choice of intensities (varying numbers of transforms, hashes and DH groups). Use -h for help & usage.
+<li>Allows a choice of intensities (varying numbers of transforms, hashes and DH groups). Use <i>-h</i> for <b>help</b> & <b>usage</b>.
 <li>Checks single or multiple targets (individual targets, ranges, lists or CIDR) for UDP port 500 open and ike-scans them in aggressive mode if they are (it prints the command to validate this) and prints the responder hash (with caveat). 
 <li>Checks the implementation fingerprint (guesses the vendor).
 <li>Checks to see if port 4500 is open and suggests nat-t if it is.
