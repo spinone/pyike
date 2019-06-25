@@ -234,7 +234,7 @@ def check4AM(translist, IP): # Check for Aggressive Mode
                         # Patched versions respond to all requests with the DPD payload, but unpatched versions only return  
                         # a DPD payload when the group name is correct, providing a method for group ID enumeration.
                         print "[***] Dead Peer Detection was not reported - if the endpoint is an older CISCO device, it may be unpatched.\n"
-                    print"[*] Note that unless the group ID is correct, the responder hash (hash_r) returned\n[*] from CISCO devices is an anti-enumeration feature, and will not be crackable.\n"
+                    print"[*] Note that unless the group ID is correct, the responder hash (hash_r) returned\n[\] from CISCO devices is an anti-enumeration feature, and will not be crackable.\n"
                     
                     hashflag=False
                 if "hash_r" in line:
