@@ -476,7 +476,7 @@ def main():
         if LEN==3:
             print "[+] Using high intensity (-T3: 750 transforms + PSK, RSA, Hybrid, ECDSA & XAUTH + DH 1, 2, 5, 14 & 16)."
         if LEN==4:
-            print "[+] Using all possible transforms (-T4: 23760 transforms + All Auths + DH 1-18)\n[***] NOTE: Danger of triggering an IDS."
+            print "[+] Using all possible transforms (-T4: 23760 transforms + All Auths + DH 1-18)\n[***] NOTE: Using insane mode runs the risk of triggering an IDS."
 
         print # end of headers
 
