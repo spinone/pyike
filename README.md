@@ -11,8 +11,17 @@ An ike-scan wrapper script in Python to check VPN endpoint support for Aggressiv
 <li>Checks single or multiple targets (individual targets, ranges, lists or CIDR) for UDP port 500 open and ike-scans them in aggressive mode if they are (it prints the command to validate this) and prints the responder hash (with caveat). 
 <li>Checks the implementation fingerprint (guesses the vendor).
 <li>Checks to see if port 4500 is open and suggests nat-t if it is.
-<li>Checks to see if Dead Peer Detection is reported (missing for an incorrect group name from an unpatched ASA firewall)
-</ul>
+<li>Checks to see if Dead Peer Detection is reported (missing for an incorrect group name from an unpatched ASA firewall)  
+</ul>  
+
+Run as **root** ( or, in Linux, add the following to the user's .bashrc file:  
+```
+# PyIKE  
+alias pyike='sudo python /home/user/git/pyike/pyike.py '  
+```
+Where **/home/user/git/pyike** is the path to the script (note the trailing space after .py)  
+Invoking the script then only needs *pyike [targets] [options]* from any location.   
+
 
 **Example Output:**
 ```
