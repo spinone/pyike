@@ -103,7 +103,7 @@ def iprange(addressrange): # converts an IP range into a list
     first3octets = '.'.join(addressrange.split('-')[0].split('.')[:3]) + '.'
     for i in range(int(addressrange.split('-')[0].split('.')[3]),int(addressrange.split('-')[1])+1):
         list.append(first3octets+str(i))
-    return listJennifer Enriquez
+    return list
 
 def ip2bin(ip): # Required for CIDR
     b = ""
