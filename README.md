@@ -1,15 +1,16 @@
 # pyike
 A script to check VPN endpoint support for Aggressive Mode, with various Authorisation parameters.
-- Generates Transforms on the fly, as needed (-T1 light (45 transforms & PSK only), -T2 default (180), -T3 high (750), -T4 insane (23760)).
-- Allows a choice of intensities (varying numbers of transforms, hashes and DH groups). Use -h for help.
-- Checks single or multiple targets (individual targets, ranges, lists or CIDR) for UDP port 500 open and ike-scans them in aggressive mode if they are (it prints the command to validate this) and prints the responder hash (with caveat). 
-- Checks the implementation fingerprint (guesses the vendor).
-- Checks to see if port 4500 is open and suggests nat-t if it is.
-- Checks to see if Dead Peer Detection is reported (missing for an incorrect group name from an unpatched ASA firewall)
+<ul>
+<li>Generates Transforms on the fly, as needed (-T1 light (45 transforms & PSK only), -T2 default (180), -T3 high (750), -T4 insane (23760)).
+<li>Allows a choice of intensities (varying numbers of transforms, hashes and DH groups). Use -h for help.
+<li>Checks single or multiple targets (individual targets, ranges, lists or CIDR) for UDP port 500 open and ike-scans them in aggressive mode if they are (it prints the command to validate this) and prints the responder hash (with caveat). 
+<li>Checks the implementation fingerprint (guesses the vendor).
+<li>Checks to see if port 4500 is open and suggests nat-t if it is.
+<li>Checks to see if Dead Peer Detection is reported (missing for an incorrect group name from an unpatched ASA firewall)
+>/ul>
 
-Example output:
-==================================================================
-
+Example Output:
+```
 sudo python pyike.py 10.100.140.35 -T1
                  .___ ____  __.___________ 
    ______ ___.__.|   |    |/ _|\_   _____/ 
@@ -57,3 +58,4 @@ sudo python pyike.py 10.100.140.35 -T1
 
 === pyIKE finished at 16:07:10 ============================================
 
+```
