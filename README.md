@@ -81,7 +81,7 @@ sudo python pyike.py 10.100.140.35 -T1
 
 ===========================================================================
 
-[+] 1 server(s) found supporting Aggressive Mode.
+[+] 1 server(s) found supporting Aggressive Mode, in 86 seconds.
 
 === pyIKE finished at 16:07:10 ============================================
 ```
