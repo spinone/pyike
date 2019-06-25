@@ -15,12 +15,13 @@
 # NAT mode, port variable (500/4500) for output #
 
 __author__ = 'Chris Rundle (crundle@blackberry.com)'
-__version__ = '1.2.9'
+__version__ = '1.3.0'
 __last_modification__ = '2019.06.12'
 # 1.2.6 = Parse CIDR ranges in a file list
 # 1.2.7 = Default to non-verbose mode (only report aggressive), with -v to show verbose output
 # 1.2.8 = Cosmetic changes to output
 # 1.2.9 = Added hash_r warning, Dead Peer Detection and insane mode (all 23760 transforms)
+# 1.3.0 = Git edition. Added elepsed time and some cosmetic changes to output.
 
 # Import modules #
 
@@ -102,7 +103,7 @@ def iprange(addressrange): # converts an IP range into a list
     first3octets = '.'.join(addressrange.split('-')[0].split('.')[:3]) + '.'
     for i in range(int(addressrange.split('-')[0].split('.')[3]),int(addressrange.split('-')[1])+1):
         list.append(first3octets+str(i))
-    return list
+    return listJennifer Enriquez
 
 def ip2bin(ip): # Required for CIDR
     b = ""
