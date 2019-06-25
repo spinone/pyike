@@ -515,7 +515,7 @@ def main():
     tdelta = int(tfin - tnow)
     print "[+] %s server(s) found supporting Aggressive Mode, in %s seconds.\n" % (AMC, tdelta)
 
-    tf = (time.strftime("%H:%M:%S"))
+    tf = (time.strftime("%H:%M:%S on %A %d %b %Y"))
     print "=== pyIKE finished at " + tf + " " + "="*(75-(23+len(tf))) +"\n\n"
 
 # End Functions #
