@@ -7,7 +7,7 @@ A script to check VPN endpoint support for Aggressive Mode, with various Authori
 <li>Checks the implementation fingerprint (guesses the vendor).
 <li>Checks to see if port 4500 is open and suggests nat-t if it is.
 <li>Checks to see if Dead Peer Detection is reported (missing for an incorrect group name from an unpatched ASA firewall)
->/ul>
+</ul>
 
 Example Output:
 ```
