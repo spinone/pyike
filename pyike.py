@@ -255,7 +255,7 @@ def checkImplemetation(trans, IP): # Guess VPN software provider
         if "Implementation" in line:
             sys.stdout.write(" "*40+"\r")
             sys.stdout.flush()
-            print("[+] " + line + "    (Validation:" + imp + ")\n")
+            print("[+] " + line + "    (Validation: " + imp + ")\n")
 
 def ikescan(IP, translist, OnlyScanOpen):
     global nat
