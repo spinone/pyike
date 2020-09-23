@@ -15,13 +15,14 @@
 # NAT mode, port variable (500/4500) for output #
 
 __author__ = 'Chris Rundle (crundle@blackberry.com)'
-__version__ = '1.3.0'
-__last_modification__ = '2019.06.25'
+__version__ = '1.3.5'
+__last_modification__ = '2020.07.31'
 # 1.2.6 = Parse CIDR ranges in a file list
 # 1.2.7 = Default to non-verbose mode (only report aggressive), with -v to show verbose output
 # 1.2.8 = Cosmetic changes to output
 # 1.2.9 = Added hash_r warning, Dead Peer Detection and insane mode (all 23760 transforms)
 # 1.3.0 = Git edition. Added estimated and elapsed time and some cosmetic changes to output.
+# 1.3.5 = FQDNs in a list (-L:) weren't being resolved. T1 (45 transforms & PSK only) is now the default intensity .
 
 # Import modules #
 
@@ -34,7 +35,7 @@ import time
 # Functions #
 
 def usage():
-        print "Usage: (Run as root or using sudo)\n\n       pyike.py [-h][-v][-q][-n][-L: ][-Tx] target \n         -h =  This information (also --help)\n         -v =  Report verbosely (all targets), not just when Aggressive mode is found\n         -q =  Quick - Report when Aggressive mode is found, but don't perform an implementation check\n               (i.e. don't guess the VPN vendor)\n         -n =  Disable port check - IKE scan all targets even if port 500/udp is not open (slow)\n         -L:<filename> - read targets from a list of valid IP addresses and/or CIDR ranges\n         -Tx = Intensity: -T1 light (45 transforms & PSK only), -T2 default (180), -T3 high (750), -T4 insane (23760)\n\n         target = A space delimited combination of IPs, x-y IP ranges, CIDR ranges or hostnames\n             e.g. pyike.py 5.25.16.0/30 212.16.82.5-10 encription.co.uk\n             or   pyike.py -q -T1 212.16.82.5-10 -L:hostlist1.txt -L:hostlist2.txt\n\n"
+        print "Usage: (Run as root or using sudo)\n\n       pyike.py [-h][-v][-q][-n][-L: ][-Tx] target \n         -h =  This information (also --help)\n         -v =  Report verbosely (all targets), not just when Aggressive mode is found\n         -q =  Quick - Report when Aggressive mode is found, but don't perform an implementation check\n               (i.e. don't guess the VPN vendor)\n         -n =  Disable port check - IKE scan all targets even if port 500/udp is not open (slow)\n         -L:<filename> - read targets from a list of valid IP addresses and/or CIDR ranges\n         -Tx = Intensity: -T1 light - (Default - 45 transforms & PSK only), -T2 medium (180), -T3 high (750), -T4 insane (23760)\n\n         target = A space delimited combination of IPs, x-y IP ranges, CIDR ranges or hostnames\n             e.g. pyike.py 5.25.16.0/30 212.16.82.5-10 encription.co.uk\n             or   pyike.py -q -T1 212.16.82.5-10 -L:hostlist1.txt -L:hostlist2.txt\n\n"
 
 def chkroot():
     if len(sys.argv)==1:
@@ -154,8 +155,9 @@ def chkport(IP): # Check if port 500/udp is open
                 open4500=True
                 if nat=="":
                     print "[!]  Port 4500/udp is open - consider using NAT-Traversal (-nat)"
-            else: # if it's open and it's not 4500, it must be 500
-                open500=True
+            else: # if it's open and it's not 4500, it must be 500 (we only test for 2 ports)
+                open500=True   
+            
     return open500
 
 def gentrans(LEN): # Make a list of all appropriate transforms
@@ -164,11 +166,12 @@ def gentrans(LEN): # Make a list of all appropriate transforms
 
     ENCLIST=['1','5','7/128','7/192','7/256']# Encryption: DES, Triple-DES, AES/128, AES/192 and AES/256
     HASHLIST=['1','2','4']# Hashes: MD5, SHA1 & SHA2-256 [+ possibly 5 (SHA2-384), 6 (SHA2-512)]
-    AUTHLIST=['1','3','64221','65001']# Authentication: Pre-Shared Key, RSA Signatures, Hybrid Mode and XAUTH [+ 4 (RSA Encryption), 8 (ECDSA Signature)]
+    AUTHLIST=['1']# If we only need PSK for a T1 check.
     GROUPLIST=['1','2','5']# Diffie-Hellman groups: 1, 2 and 5 (but potentially 1-18)
 
-    if LEN == 1:
-	    AUTHLIST=['1'] # If we only need PSK for this check, but use the default (T2) ENCLIST, HASHLIST and GROUPLIST
+    if LEN == 2:
+        # Use the default (T1) ENCLIST, HASHLIST and GROUPLIST for T2
+        AUTHLIST=['1','3','64221','65001']# Authentication: Pre-Shared Key, RSA Signatures, Hybrid Mode and XAUTH [+ 4 (RSA Encryption), 8 (ECDSA Signature)]
 
     if LEN == 3:
         HASHLIST=['1,','2','4','5','6']# Hashes: MD5, SHA1, SHA2-256, SHA2-384 & SHA2-512
@@ -198,26 +201,31 @@ def check4AM(translist, IP): # Check for Aggressive Mode
     AM2=False
     hashflag=False
     DeadPeer = False
+    SA=False
     TLL=len(translist)
 
     for trans in translist:
         i+=1
-        #sys.stdout.write("[>] Checking %s:                           \r" % (trans) )
-        #sys.stdout.write("\r%s of %s: " % (i, TLL) )
-        sys.stdout.write("\r%s: " % (i) )
+        sys.stdout.write("\r%s: " % (i) ) # visual transform count indicator
         sys.stdout.flush()
         # (-M = Multiline (each payload shown on a separate line), -A = Aggressive Mode) #
-        #  '-P' returns the response payloads including the responder hash (HASH_R) #
+        #  '-P' returns the response payloads including the responder hash (HASH_R)      #
         strike="ike-scan -M -A --id=fakegroup " + trans + " " + nat + " " + IP + " -P" 
         cmd = subprocess.Popen(strike, shell=True, stdout=subprocess.PIPE)
         for line in cmd.stdout:
+            sys.stdout.write(" "*40+"\r")
+            sys.stdout.flush()
+            if ("SA=" in line) and (AM==True) and (SA==False):
+                print "[-] " + line.strip() + "\n"
+                SA=True
             if "Aggressive" in line:
-                sys.stdout.write(" "*40+"\r")
+                sys.stdout.write(" "*40+"\r") # clear the transform counter
                 sys.stdout.flush()
                 if AM==False: # AM Flag not yet set
                     AM=True
                     AMC=AMC+1
-                    print "[+] " + line + "    (Validation: " + strike +")\n"
+                    # clear the transform counter and show response 
+                    print "          \n[+] " + line + "    (Validation: " + strike +")\n"
                     if quick: # -q option
                         print "[-] Not running implementation checks (-q)\n"
                         #return AM # uncomment this line to break out of the if statement, don't test other transforms and don't harvest the PSK hash
@@ -228,34 +236,41 @@ def check4AM(translist, IP): # Check for Aggressive Mode
                         print"[-] Other transform options allowing Aggressive Mode handshakes on this host (from the T%s list of %s transforms):" % (LEN, TLL)
                         AM2=True
                     print("    (" + trans +")")
+
             if AM and not AM2:
                 if hashflag:
-                    print(line)
+                    print "[+] RESPONDER HASH: " + line
                     if DeadPeer == False:
                         # Patched versions respond to all requests with the DPD payload, but unpatched versions only return  
                         # a DPD payload when the group name is correct, providing a method for group ID enumeration.
-                        print "[***] Dead Peer Detection was not reported - if the endpoint is an older CISCO device, it may be unpatched.\n"
+                        print "[***] Dead Peer Detection was NOT REPORTED - if the endpoint is an older CISCO device, it may be unpatched.\n"
                     print"[*] Note that for CISCO devices, unless the group ID is correct, the responder hash (hash_r)\n", \
                          "[\] returned from the endpoint is an anti-enumeration feature, and will not be crackable.\n"
 		
                     hashflag=False
                 if "hash_r" in line:
-                    print "[+] RESPONDER HASH: ",
                     hashflag=True
                 if "Dead Peer Detection" in line:
                     DeadPeer = True
+                    eko("[*] " + line.strip())
+                    eko(" ")
     return AM
 
 def checkImplemetation(trans, IP): # Guess VPN software provider
     imp="ike-scan -M " + trans  + nat + " " + " --showbackoff "+ IP
-    sys.stdout.write("[>] Running implementation check (this can take a minute or two... )    \r")
+    sys.stdout.write("[>] Running implementation check (this can take a while... )    \r")
     sys.stdout.flush()
     cmd = subprocess.Popen(imp, shell=True, stdout=subprocess.PIPE)
+    impflag=False
     for line in cmd.stdout:
         if "Implementation" in line:
-            sys.stdout.write(" "*40+"\r")
+            impflag=True
+            sys.stdout.write(" "*60+"\r")
             sys.stdout.flush()
             print("[+] " + line + "    (Validation: " + imp + ")\n")
+
+    if(not impflag):
+            print("[+] " + IP + "      Implementation guess: The server did not return one.\n    (Validation: " + imp + ")\n")
 
 def ikescan(IP, translist, OnlyScanOpen):
     global nat
@@ -270,7 +285,7 @@ def ikescan(IP, translist, OnlyScanOpen):
     if nat=="":
         if open500:
             # print, even in quick mode.
-            print "[+] " + IP + ":500/udp is open - checking for Aggressive Mode....\n"
+            print "[+] " + IP + ":500/udp is open - checking for Aggressive Mode...."
             isOpen=True             
         else:
             strT="[!] " + IP + ":500/udp is open|filtered - "
@@ -291,11 +306,20 @@ def ikescan(IP, translist, OnlyScanOpen):
         sys.stdout.flush()
         if AM:
             print "     \n[+] Conclusion: %s supports Aggressive Mode.\n" % (IP)
-            if (not verbose):
-                print "~"*40 
         else:
             tno = int(len(translist))
             print "     \n[+] Conclusion: %s did not return an Aggressive Mode handshake (%s transforms used).\n" % (IP, tno)
+        if (not verbose):
+            print "~"*40 
+
+def getIP(targ):
+    targ=targ.strip()
+    try:
+        x=(socket.gethostbyname(targ))
+        print "[+] FQDN '%s' resolves to %s" % (targ, x)
+    except:
+        x="Exception"
+    return x
 
 def eko(aradia):
     global verbose
@@ -358,7 +382,7 @@ def main():
     quick=False
     AMC=0
     nat=""
-    LEN=2
+    LEN=1
     verbose=False
     tnow = time.time()
 
@@ -371,7 +395,7 @@ def main():
             usage()
             sys.exit()
 
-    print "\n[>] Checking options..."
+    print "\n[>] Checking options and targets..."
 
 # loop through cli options
     for target in targs:
@@ -428,11 +452,17 @@ def main():
                         for item in cidrlist:
                             if validIP(item):
                                 targets.append(item)
+                    elif target.lower().islower(): # Contains letters - might be a FQDN
+                        x=getIP(target)
+                        if validIP(x):
+                            targets.append(x)
+                        else: 
+                            print "[!] Ignoring %s as it does not appear to be a valid target..." % (target) 
                     else: 
                         print "[!] Invalid list entry '%s' was discarded... (not a valid IP address)" % target
 
         elif target[0] == "-":
-            print "[!] Invalid command line argument (%r) was ignored..." % target
+            print "[!] Invalid list item (%r) was ignored..." % item
 
         elif '/' in target: # found cidr target
             cidrlist=returnCIDR(target)
@@ -448,14 +478,14 @@ def main():
             targets.append(target)
 
         else:
-             try: 
-                x=(socket.gethostbyname(target)) # get IP from FQDN
+            try: 
+                x=getIP(target) # get IP from FQDN
                 if x == '92.242.132.15':
                     raise Exception('BT Internet maps non-existent hosts to 92.242.132.15')
-                eko("[+] FQDN '%s' resolves to %s" % (target, x))
-                targets.append(x)
-             except: 
-                print "[!] Ignoring %s as it does not appear to be a valid target..." % (target)   
+                if validIP(x):
+                    targets.append(x)
+            except: 
+                print "[!] Ignoring %s as it does not appear to be a valid target... %r" % (target, x)   
   
 
 # Begin processing targets
@@ -472,9 +502,9 @@ def main():
             print "[+] Attempting IKE scan on all valid targets, even if 500/udp ports are not open."
             eko("    (-n flag set)")
         if LEN==1:
-            print "[+] Using light intensity (-T1: 45 transforms + PSK (only) + DH 1, 2 & 5)."
+            print "[+] Using default light intensity (-T1: 45 transforms + PSK (only) + DH 1, 2 & 5)."
         if LEN==2:
-            print "[+] Using default intensity (-T2: 180 transforms + PSK, RSA, Hybrid & XAUTH + DH 1, 2, 5, 14 & 16)."
+            print "[+] Using medium intensity (-T2: 180 transforms + PSK, RSA, Hybrid & XAUTH + DH 1, 2, 5, 14 & 16)."
         if LEN==3:
             print "[+] Using high intensity (-T3: 750 transforms + PSK, RSA, Hybrid, ECDSA & XAUTH + DH 1, 2, 5, 14 & 16)."
         if LEN==4:
